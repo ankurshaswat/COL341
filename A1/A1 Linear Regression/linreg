@@ -1,0 +1,15 @@
+#!/bin/bash
+case $1 in
+	a)
+		python A1a.py $2 $3 $4
+		;;
+	b)
+		python A1b.py $2 $3 $4
+		;;
+	c)
+		python A1c.py $2 $3 $4
+		;;
+	*)
+		echo "Unknown Argument for part"
+		;;
+esac
