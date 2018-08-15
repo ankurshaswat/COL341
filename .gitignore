@@ -105,3 +105,4 @@ venv.bak/
 
 # machine learning data
 data/
+out/
