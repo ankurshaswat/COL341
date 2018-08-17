@@ -1,0 +1,12 @@
+#!/bin/bash
+case $1 in
+	a)
+		python logisticA.py $2 $3 $4 $5 $6 $7 $8 $9
+		;;
+	b)
+		python logisticB.py $2 $3 $4 $5 $6 $7 $8 $9
+		;;
+	*)
+		echo "Unknown Argument for part"
+		;;
+esac
