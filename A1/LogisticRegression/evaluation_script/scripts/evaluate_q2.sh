@@ -51,9 +51,9 @@ main()
     batch_size=128    
     # Run Q2
     cd $2/$3
-    for part in a b; do
+    for part in b a; do
         for algo in 1 2 3; do
-            run logreg $part $algo $lr $num_iter $batch_size $1/imdb_train.csv $1/imdb_vocab $1/imdb_test.csv $2/$3/results_${part}_${algo}
+            time run logreg $part $algo $lr $num_iter $batch_size $1/imdb_train.csv $1/imdb_vocab $1/imdb_test.csv $2/$3/results_${part}_${algo}
             compute_score $main_dir/compute_accuracy.py $1/imdb_test.csv $2/$3/results_${part}_${algo}
         done
     done
