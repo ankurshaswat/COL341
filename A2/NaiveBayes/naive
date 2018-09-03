@@ -1,0 +1,18 @@
+#!/bin/bash
+case $1 in
+        a)
+                python NaiveBayesA.py $2 $3 $4
+                ;;
+        b)
+                python NaiveBayesB.py $2 $3 $4
+                ;;
+        c)
+                python NaiveBayesC.py $2 $3 $4
+                ;;
+
+        *)
+                echo "Unknown Argument for part"
+                ;;
+esac
+
+

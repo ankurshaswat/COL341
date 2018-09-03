@@ -1,0 +1,17 @@
+#!/bin/bash
+case $1 in
+	a)
+		shift
+		python NeuralNetA.py "$@"
+		;;
+	b)
+		python NeuralNetB.py $2 $3 $4
+		;;
+	c)
+                python NeuralNetC.py $2 $3 $4
+                ;;
+
+	*)
+		echo "Unknown Argument for part"
+		;;
+esac
