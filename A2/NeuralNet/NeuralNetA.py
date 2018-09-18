@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[25]:
 
 
 import numpy as np
@@ -13,15 +13,22 @@ training_data_path = sys.argv[1]
 testing_data_path = sys.argv[2]
 output_path = sys.argv[3]
 batch_size = int(sys.argv[4])
-activation = sys.argv[5]
+n0 = float(sys.argv[5])
+activation = sys.argv[6]
 hidden_layers_sizes = []
-for i in range(6,len(sys.argv)):
+for i in range(7,len(sys.argv)):
     hidden_layers_sizes.append(int(sys.argv[i]))
-print("Hidden Layers = ",hidden_layers_sizes)
-n0 = 2
+
+# training_data_path = "../data/devnagri_train.csv"
+# testing_data_path = "../data/devnagri_test_public.csv"
+# output_path = "../data/nn/a/cs1160328.txt"
+# batch_size = 128
+# n0 = 5
+# activation = 'sigmoid'
+# hidden_layers_sizes = [50,50]
 
 
-# In[ ]:
+# In[2]:
 
 
 def relu(x):
@@ -45,7 +52,7 @@ def exp_normalize(x):
     return y / y.sum(axis=1,keepdims=True)
 
 
-# In[ ]:
+# In[28]:
 
 
 class NeuralNetwork:
@@ -85,9 +92,34 @@ class NeuralNetwork:
         max_possible_iterations = int(0.5 + max_examples / batch_size)
         num_hidden_layers = len(self.weights) - 1
         
+        count = 0
+            
+        lr = n0
+        totLoss = 0
+        prevAvgLoss = sys.float_info.max
+        epoch = 0
+        
         for n in range(max_iterations):
             # Forming Mini Batches
             i_eff = n%max_possible_iterations
+            
+            # Updating Learning Rate
+            if (i_eff == 0 and n!=0):
+                avgLoss = totLoss/max_possible_iterations
+                
+                if(np.absolute(avgLoss - prevAvgLoss) < 0.0001 * prevAvgLoss):
+                    stopCount += 1
+                    if stopCount > 1:
+                        break
+                else:
+                    stopCount = 0
+                if(avgLoss >= prevAvgLoss):
+                    count += 1
+                    lr = n0 / np.sqrt(count+1)
+                print("Epoch = ",epoch," Average Loss = ",avgLoss," New Learning Rate = ",lr)
+                epoch += 1
+                prevAvgLoss = avgLoss
+                totLoss = 0
             
             outputs = []
             
@@ -97,9 +129,6 @@ class NeuralNetwork:
             else:
                 X = inpX[i_eff*batch_size:]
                 Y = inpY[i_eff*batch_size:]
-            
-            # Updating Learning Rate
-            lr = n0 / np.sqrt(n+1) 
                 
             # Neural Network Forward Propagation
             outputs.append(X)
@@ -128,12 +157,12 @@ class NeuralNetwork:
                 dW = (outputs[i-1].T).dot(delta)
                 dWs.append(dW)
                 dbs.append(np.sum(delta,axis=0,keepdims=True))
-                
+
             if (n%100 == 0):
-                loss = np.sum(np.power(outputs[-1] - y_onehot,2) )/Y.shape[0]
-                labels = np.argmax(outputs[-1],axis = 1)
-                accuracy = 100 * np.sum(labels == Y)/Y.shape[0]
-                print("Iteration ",n,"\tLoss = ",loss,"\tAccuracy = ",accuracy,"%")
+                loss_ = np.sum(np.power(outputs[-1] - y_onehot,2) )/Y.shape[0]
+                labels_ = np.argmax(outputs[-1],axis = 1)
+                accuracy_ = 100 * np.sum(labels_ == Y)/Y.shape[0]
+                print("Iteration ",n,"\tLoss = ",loss_,"\tAccuracy = ",accuracy_,"%")
                 
             dWs.reverse()
             dbs.reverse()
@@ -143,6 +172,9 @@ class NeuralNetwork:
                 self.weights[i] += dWs[i].dot(-1 * lr)
                 self.biases[i] += dbs[i].dot(-1 * lr)
 
+            loss = np.sum(np.power(outputs[-1] - y_onehot,2) )/Y.shape[0]
+            totLoss += loss
+                
     def predict(self,X):
         return self.forward_run(X)
         
@@ -160,7 +192,7 @@ class NeuralNetwork:
                 prev_layer_output = self.activation(prev_layer_output.dot(weight) + bias)
 
 
-# In[ ]:
+# In[4]:
 
 
 def load_data(path,avg,std):
@@ -181,7 +213,7 @@ def load_data(path,avg,std):
         return X
 
 
-# In[ ]:
+# In[5]:
 
 
 inpX,Y,avg,std = load_data(training_data_path,None,None)
@@ -195,27 +227,27 @@ X = inpX.copy()
 input_size = X.shape[1]
 output_size = int(np.amax(Y))+1
 num_examples = X.shape[0]
-max_iterations = int(4*(num_examples/batch_size))
+max_iterations = int(40*(num_examples/batch_size))
 
 network = NeuralNetwork(input_size,output_size,hidden_layers_sizes,activation)
 network.train(X,Y.astype(int),batch_size,n0,max_iterations)
 
 
-# In[ ]:
+# In[27]:
 
 
 predictions = network.predict(X.copy())
 print("Accuraccy on Training Data = ",100 * np.sum(predictions == Y)/Y.shape[0])
-print("Average of predictions on Training Data = ",np.average(predictions))
+# print("Average of predictions on Training Data = ",np.average(predictions))
 
 
-# In[ ]:
+# In[8]:
 
 
 testX = load_data(testing_data_path,avg,std)
 
 
-# In[ ]:
+# In[9]:
 
 
 predictions = network.predict(testX)

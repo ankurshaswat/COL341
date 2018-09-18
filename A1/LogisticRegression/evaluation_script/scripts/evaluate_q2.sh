@@ -46,7 +46,7 @@ main()
     '
     main_dir=`pwd`
     unzip $4/$3.zip -d $2
-    lr=0.05
+    lr=0.001
     num_iter=500
     batch_size=128    
     # Run Q2
